@@ -1,8 +1,11 @@
 import pandas as pd
 
-file_path = r'/DS/corp_pfd.dif'
+#File paths
+corp_pfd_path = r'/DS/corp_pfd.dif'
+r_fields_path = r'/DS/reference_fileds.csv'
 
-with open(file_path, 'r') as file:
+#Reading the DIF file
+with open(corp_pfd_path, 'r') as file:
     lines = file.readlines()
 
 columns = []
@@ -10,6 +13,7 @@ data = []
 collect_columns = False
 collect_data = False
 
+#Parsing the DIF file
 for line in lines:
     line = line.strip()
     if line == 'START-OF-FIELDS':
@@ -26,14 +30,17 @@ for line in lines:
         continue
 
     if collect_columns:
-        columns.append(line)
+        if '#' not in line and len(line) > 0:
+            columns.append(line)
     elif collect_data:
-        data.append(line.split('|'))
+        data.append(line.split('|')[:-1])
 
-# Find the maximum number of fields in data rows
-max_fields = max(len(row) for row in data)
+# Creating DataFrame from parsed data
+df = pd.DataFrame(data, columns=columns)
 
-# Ensure all data rows have the same number of fields as columns by padding with None
-data = [row + [None] * (max_fields - len(row)) for row in data]
+#Reading and filtering reference fields CSV
+r_fields = pd.read_csv(r_fields_path)
+r_fields = r_fields[r_fields['id_field'] == 1]
 
-df = pd.DataFrame(data, columns=columns[:max_fields])
+df = df[['ID_BB_GLOBAL','ID_BB_UNIQUE','ID_CUSIP','ID_ISIN','ID_SEDOL1','NAME','TICKER','EXCH_CODE']]
+df
