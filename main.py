@@ -3,6 +3,7 @@ import pandas as pd
 #File paths
 corp_pfd_path = r'/DS/corp_pfd.dif'
 r_fields_path = r'/DS/reference_fileds.csv'
+r_securities_path = r'/DS/reference_securities.csv'
 
 #Reading the DIF file
 with open(corp_pfd_path, 'r') as file:
@@ -38,14 +39,14 @@ for line in lines:
 # Creating DataFrame from parsed data
 df = pd.DataFrame(data, columns=columns)
 
-#Reading and filtering reference fields CSV
-r_fields = pd.read_csv(r_fields_path)
-r_fields = r_fields[r_fields['id_field'] == 1]
-
-df = df[['ID_BB_GLOBAL','ID_BB_UNIQUE','ID_CUSIP','ID_ISIN','ID_SEDOL1','NAME','TICKER','EXCH_CODE']]
-df
-
 r_fields = pd.read_csv(r_fields_path)
 rf_columns = [col.upper() for col in r_fields['field'] if col.upper() in df.columns] #Extracting the list of columns from r_fields that are present in the DataFrame
 
 df = df[rf_columns]
+
+r_securities = pd.read_csv(r_securities_path)
+rs_columns = [col.upper() for col in r_securities.columns]
+
+new_securities = df[~df['ID_BB_GLOBAL'].isin(r_securities['ID_BB_GLOBAL'.lower()])]
+
+new_securities[rs_columns].to_csv('new_securities.csv ', index = False)
