@@ -48,5 +48,20 @@ r_securities = pd.read_csv(r_securities_path)
 rs_columns = [col.upper() for col in r_securities.columns]
 
 new_securities = df[~df['ID_BB_GLOBAL'].isin(r_securities['ID_BB_GLOBAL'.lower()])]
+new_securities = new_securities.drop_duplicates(subset=['ID_BB_GLOBAL'])
 
 new_securities[rs_columns].to_csv('new_securities.csv ', index = False)
+
+security_data = []
+
+for index, row in new_securities.iterrows():
+    security_data.append({
+        'ID_BB_GLOBAL': row['ID_BB_GLOBAL'],
+        'FIELD': ', '.join(rf_columns),
+        'VALUE': ', '.join([row[col] for col in rf_columns]),
+        'SOURCE': 'corp_pfd.dif',
+        'TSTAMP': pd.Timestamp.now() 
+    })
+
+security_data = pd.DataFrame(security_data)
+security_data.to_csv('security_data', index = False)
