@@ -44,3 +44,8 @@ r_fields = r_fields[r_fields['id_field'] == 1]
 
 df = df[['ID_BB_GLOBAL','ID_BB_UNIQUE','ID_CUSIP','ID_ISIN','ID_SEDOL1','NAME','TICKER','EXCH_CODE']]
 df
+
+r_fields = pd.read_csv(r_fields_path)
+rf_columns = [col.upper() for col in r_fields['field'] if col.upper() in df.columns] #Extracting the list of columns from r_fields that are present in the DataFrame
+
+df = df[rf_columns]
